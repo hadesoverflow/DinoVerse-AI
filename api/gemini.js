@@ -1,20 +1,20 @@
-const DEFAULT_MODEL = "text-bison-001";
+const DEFAULT_MODEL = "gemini-1.5-flash-latest";
 const VALID_MODELS = new Set([
-  "text-bison-001",
-  "chat-bison-001"
+  "gemini-1.5-flash-latest",
+  "gemini-1.5-pro-latest"
 ]);
 const MODEL_ALIASES = {
-  "gemini-pro": "text-bison-001",
-  "gemini-1.0-pro": "text-bison-001", 
-  "gemini-1.5-flash": "text-bison-001",
-  "gemini-1.5-flash-latest": "text-bison-001",
-  "gemini-1.5-pro": "text-bison-001",
-  "gemini-1.5-pro-latest": "text-bison-001",
-  "gemini-1.5-flash-8b": "text-bison-001",
-  "gemini-1.5-flash-8b-latest": "text-bison-001",
-  "gemini-2.0-flash": "text-bison-001",
-  "gemini-2.0-flash-latest": "text-bison-001",
-  "gemini-2.0-flash-exp": "text-bison-001"
+  "gemini-pro": "gemini-1.5-flash-latest",
+  "gemini-1.0-pro": "gemini-1.5-flash-latest",
+  "gemini-1.5-flash": "gemini-1.5-flash-latest",
+  "gemini-1.5-flash-latest": "gemini-1.5-flash-latest",
+  "gemini-1.5-pro": "gemini-1.5-pro-latest",
+  "gemini-1.5-pro-latest": "gemini-1.5-pro-latest",
+  "gemini-1.5-flash-8b": "gemini-1.5-flash-latest",
+  "gemini-1.5-flash-8b-latest": "gemini-1.5-flash-latest",
+  "gemini-2.0-flash": "gemini-1.5-flash-latest",
+  "gemini-2.0-flash-latest": "gemini-1.5-flash-latest",
+  "gemini-2.0-flash-exp": "gemini-1.5-flash-latest"
 };
 
 function normalizeModel(name) {
@@ -109,11 +109,8 @@ module.exports = async function handler(req, res) {
     parts: [{ text: msg.content }]
   }));
 
-  // Convert to PaLM format
-  const prompt = messages.map(msg => `${msg.role}: ${msg.content}`).join('\n') + '\nassistant:';
-
   try {
-    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateText?key=${apiKey}`;
+    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
 
     if (modelResolution === "fallback") {
       console.warn(
@@ -129,12 +126,13 @@ module.exports = async function handler(req, res) {
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          prompt: {
-            text: prompt
-          },
-          temperature: 0.7,
-          candidateCount: 1,
-          maxOutputTokens: 1024
+          contents,
+          generationConfig: {
+            temperature: 0.7,
+            topK: 40,
+            topP: 0.95,
+            maxOutputTokens: 1024,
+          }
         })
       }
     );
@@ -146,10 +144,11 @@ module.exports = async function handler(req, res) {
 
     const data = await response.json();
     const candidate = data?.candidates?.[0];
-    const text = candidate?.output || candidate?.text || "";
+    const parts = candidate?.content?.parts || [];
+    const text = parts.map((part) => part.text ?? "").join("\n").trim();
 
     return res.status(200).json({
-      text: text.trim(),
+      text,
       model,
       requestedModel: body?.model ?? null,
       normalizedFrom: originalModel,
