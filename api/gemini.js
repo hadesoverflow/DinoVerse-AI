@@ -1,15 +1,66 @@
 const DEFAULT_MODEL = "gemini-1.5-flash";
+const VALID_MODELS = new Set([
+  DEFAULT_MODEL,
+  "gemini-1.5-flash-8b",
+  "gemini-1.5-pro",
+  "gemini-1.0-pro",
+  "gemini-1.0-pro-vision",
+  "gemini-pro",
+  "gemini-2.0-flash-exp",
+  "gemini-2.0-pro-exp"
+]);
 const MODEL_ALIASES = {
-  "gemini-1.5-flash": "gemini-1.5-flash",
   "gemini-pro": "gemini-pro",
+  "gemini-1.5-flash": "gemini-1.5-flash",
   "gemini-1.5-flash-latest": "gemini-1.5-flash",
   "gemini-1.5-pro": "gemini-1.5-pro",
-  "gemini-1.5-pro-latest": "gemini-1.5-pro"
+  "gemini-1.5-pro-latest": "gemini-1.5-pro",
+  "gemini-1.5-flash-8b": "gemini-1.5-flash-8b",
+  "gemini-1.5-flash-8b-latest": "gemini-1.5-flash-8b",
+  "gemini-2.0-flash": "gemini-2.0-flash-exp",
+  "gemini-2.0-flash-latest": "gemini-2.0-flash-exp",
+  "gemini-2.0-flash-exp": "gemini-2.0-flash-exp",
+  "gemini-2.0-pro": "gemini-2.0-pro-exp",
+  "gemini-2.0-pro-latest": "gemini-2.0-pro-exp",
+  "gemini-2.0-pro-exp": "gemini-2.0-pro-exp",
+  "gemini-2.0": "gemini-2.0-pro-exp",
+  "gemini-2.5": DEFAULT_MODEL,
+  "gemini-2.5-flash": DEFAULT_MODEL,
+  "gemini-2.5-pro": DEFAULT_MODEL
 };
 
 function normalizeModel(name) {
-  if (typeof name !== "string") return DEFAULT_MODEL;
-  return MODEL_ALIASES[name] || DEFAULT_MODEL;
+  if (typeof name !== "string") {
+    return { model: DEFAULT_MODEL, resolution: "default", original: null };
+  }
+
+  const trimmed = name.trim();
+  if (!trimmed) {
+    return { model: DEFAULT_MODEL, resolution: "default", original: trimmed };
+  }
+
+  const directAlias = MODEL_ALIASES[trimmed];
+  if (directAlias && VALID_MODELS.has(directAlias)) {
+    const resolution = directAlias === trimmed ? "exact" : "alias";
+    return { model: directAlias, resolution, original: trimmed };
+  }
+
+  if (VALID_MODELS.has(trimmed)) {
+    return { model: trimmed, resolution: "exact", original: trimmed };
+  }
+
+  if (trimmed.endsWith("-latest")) {
+    const base = trimmed.replace(/-latest$/, "");
+    const baseAlias = MODEL_ALIASES[base];
+    if (baseAlias && VALID_MODELS.has(baseAlias)) {
+      return { model: baseAlias, resolution: "trimmed-latest-alias", original: trimmed };
+    }
+    if (VALID_MODELS.has(base)) {
+      return { model: base, resolution: "trimmed-latest", original: trimmed };
+    }
+  }
+
+  return { model: DEFAULT_MODEL, resolution: "fallback", original: trimmed };
 }
 
 async function parseBody(req) {
@@ -56,7 +107,9 @@ module.exports = async function handler(req, res) {
     return res.status(400).json({ error: error.message });
   }
 
-  const model = normalizeModel(body?.model);
+  const { model, resolution: modelResolution, original: originalModel } = normalizeModel(
+    body?.model
+  );
   const messages = Array.isArray(body?.messages) ? body.messages : [];
 
   if (!messages.length) {
@@ -69,8 +122,9 @@ module.exports = async function handler(req, res) {
   }));
 
   try {
+    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
+      endpoint,
       {
         method: "POST",
         headers: {
@@ -99,7 +153,13 @@ module.exports = async function handler(req, res) {
     const parts = candidate?.content?.parts || [];
     const text = parts.map((part) => part.text ?? "").join("\n").trim();
 
-    return res.status(200).json({ text });
+    return res.status(200).json({
+      text,
+      model,
+      requestedModel: body?.model ?? null,
+      normalizedFrom: originalModel,
+      modelResolution
+    });
   } catch (error) {
     console.error("Gemini proxy error:", error);
     return res.status(500).json({ error: "Gemini proxy error" });
