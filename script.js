@@ -6,7 +6,7 @@ const newChatBtn = document.getElementById("new-chat-btn");
 const historyList = document.getElementById("conversation-history");
 const toggleThemeBtn = document.getElementById("toggle-theme-btn");
 
-const GEMINI_MODEL = "gemini-1.5-flash-latest";
+const GEMINI_MODEL = "gemini-1.5-flash";
 const API_BASE =
   window.location.protocol === "file:" || window.location.hostname === "localhost"
     ? "https://dino-verse-ai.vercel.app"
