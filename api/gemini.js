@@ -1,22 +1,20 @@
-const DEFAULT_MODEL = "gemini-1.5-pro";
+const DEFAULT_MODEL = "gemini-pro";
 const VALID_MODELS = new Set([
-  "gemini-1.5-flash",
-  "gemini-1.5-flash-8b",
-  "gemini-1.5-pro",
-  "gemini-2.0-flash-exp"
+  "gemini-pro",
+  "gemini-pro-vision"
 ]);
 const MODEL_ALIASES = {
-  "gemini-pro": "gemini-1.5-pro",
-  "gemini-1.0-pro": "gemini-1.5-pro",
-  "gemini-1.5-flash": "gemini-1.5-flash",
-  "gemini-1.5-flash-latest": "gemini-1.5-flash",
-  "gemini-1.5-pro": "gemini-1.5-pro",
-  "gemini-1.5-pro-latest": "gemini-1.5-pro",
-  "gemini-1.5-flash-8b": "gemini-1.5-flash-8b",
-  "gemini-1.5-flash-8b-latest": "gemini-1.5-flash-8b",
-  "gemini-2.0-flash": "gemini-2.0-flash-exp",
-  "gemini-2.0-flash-latest": "gemini-2.0-flash-exp",
-  "gemini-2.0-flash-exp": "gemini-2.0-flash-exp"
+  "gemini-pro": "gemini-pro",
+  "gemini-1.0-pro": "gemini-pro",
+  "gemini-1.5-flash": "gemini-pro",
+  "gemini-1.5-flash-latest": "gemini-pro",
+  "gemini-1.5-pro": "gemini-pro",
+  "gemini-1.5-pro-latest": "gemini-pro",
+  "gemini-1.5-flash-8b": "gemini-pro",
+  "gemini-1.5-flash-8b-latest": "gemini-pro",
+  "gemini-2.0-flash": "gemini-pro",
+  "gemini-2.0-flash-latest": "gemini-pro",
+  "gemini-2.0-flash-exp": "gemini-pro"
 };
 
 function normalizeModel(name) {
