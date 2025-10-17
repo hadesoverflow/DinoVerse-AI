@@ -1,7 +1,8 @@
-const DEFAULT_MODEL = "gemini-1.5-flash-latest";
+const DEFAULT_MODEL = "microsoft/DialoGPT-large";
 const VALID_MODELS = new Set([
-  "gemini-1.5-flash-latest",
-  "gemini-1.5-pro-latest"
+  "microsoft/DialoGPT-large",
+  "microsoft/DialoGPT-medium",
+  "facebook/blenderbot-400M-distill"
 ]);
 const MODEL_ALIASES = {
   "gemini-pro": "gemini-1.5-flash-latest",
@@ -83,9 +84,9 @@ module.exports = async function handler(req, res) {
     return res.status(405).json({ error: "Method Not Allowed" });
   }
 
-  const apiKey = process.env.GEMINI_API_KEY;
+  const apiKey = process.env.HUGGINGFACE_API_KEY;
   if (!apiKey) {
-    return res.status(500).json({ error: "Missing GEMINI_API_KEY environment variable" });
+    return res.status(500).json({ error: "Missing HUGGINGFACE_API_KEY environment variable" });
   }
 
   let body;
@@ -110,11 +111,11 @@ module.exports = async function handler(req, res) {
   }));
 
   try {
-    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+    const endpoint = `https://api-inference.huggingface.co/models/${model}`;
 
     if (modelResolution === "fallback") {
       console.warn(
-        `Gemini model fallback applied. Requested="${originalModel}" -> Using="${model}".`
+        `Model fallback applied. Requested="${originalModel}" -> Using="${model}".`
       );
     }
 
@@ -123,15 +124,15 @@ module.exports = async function handler(req, res) {
       {
         method: "POST",
         headers: {
+          "Authorization": `Bearer ${apiKey}`,
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          contents,
-          generationConfig: {
+          inputs: messages[messages.length - 1]?.content || "",
+          parameters: {
+            max_length: 1000,
             temperature: 0.7,
-            topK: 40,
-            topP: 0.95,
-            maxOutputTokens: 1024,
+            do_sample: true
           }
         })
       }
@@ -143,12 +144,18 @@ module.exports = async function handler(req, res) {
     }
 
     const data = await response.json();
-    const candidate = data?.candidates?.[0];
-    const parts = candidate?.content?.parts || [];
-    const text = parts.map((part) => part.text ?? "").join("\n").trim();
+    let text = "";
+    
+    if (Array.isArray(data) && data[0]?.generated_text) {
+      text = data[0].generated_text;
+    } else if (data?.generated_text) {
+      text = data.generated_text;
+    } else if (typeof data === "string") {
+      text = data;
+    }
 
     return res.status(200).json({
-      text,
+      text: text.trim(),
       model,
       requestedModel: body?.model ?? null,
       normalizedFrom: originalModel,
