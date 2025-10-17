@@ -6,7 +6,7 @@ const newChatBtn = document.getElementById("new-chat-btn");
 const historyList = document.getElementById("conversation-history");
 const toggleThemeBtn = document.getElementById("toggle-theme-btn");
 
-const GEMINI_MODEL = "gemini-1.5-flash";
+const GEMINI_MODEL = "gemini-pro";
 
 const conversations = [];
 let activeConversation = createConversation();
