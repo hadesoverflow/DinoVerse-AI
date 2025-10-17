@@ -1,9 +1,16 @@
 const DEFAULT_MODEL = "gemini-1.5-flash";
 const MODEL_ALIASES = {
-  "gemini-pro": "gemini-1.5-flash",
+  "gemini-1.5-flash": "gemini-1.5-flash",
+  "gemini-pro": "gemini-pro",
   "gemini-1.5-flash-latest": "gemini-1.5-flash",
+  "gemini-1.5-pro": "gemini-1.5-pro",
   "gemini-1.5-pro-latest": "gemini-1.5-pro"
 };
+
+function normalizeModel(name) {
+  if (typeof name !== "string") return DEFAULT_MODEL;
+  return MODEL_ALIASES[name] || DEFAULT_MODEL;
+}
 
 async function parseBody(req) {
   if (req.body && typeof req.body === "object") {
@@ -49,8 +56,7 @@ module.exports = async function handler(req, res) {
     return res.status(400).json({ error: error.message });
   }
 
-  const requestedModel = body?.model;
-  const model = MODEL_ALIASES[requestedModel] || requestedModel || DEFAULT_MODEL;
+  const model = normalizeModel(body?.model);
   const messages = Array.isArray(body?.messages) ? body.messages : [];
 
   if (!messages.length) {
