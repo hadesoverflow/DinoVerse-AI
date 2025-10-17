@@ -26,7 +26,7 @@ async function parseBody(req) {
   }
 }
 
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
   if (req.method !== "POST") {
     res.setHeader("Allow", "POST");
     return res.status(405).json({ error: "Method Not Allowed" });
@@ -91,4 +91,4 @@ export default async function handler(req, res) {
     console.error("Gemini proxy error:", error);
     return res.status(500).json({ error: "Gemini proxy error" });
   }
-}
+};

@@ -116,7 +116,7 @@ async function requestAssistantResponse(prompt) {
     const reply = await callGeminiAPI(activeConversation.messages.slice(0, -1));
     pendingMessage.content = reply;
   } catch (error) {
-    pendingMessage.content = "Xin lỗi, có lỗi xảy ra khi kết nối tới DinoVerse AI. Vui lòng thử lại.";
+    pendingMessage.content = `Xin lỗi, có lỗi xảy ra khi kết nối tới DinoVerse AI. Vui lòng thử lại.\n\nChi tiết: ${error.message}`;
     console.error("DinoVerse AI error:", error);
   } finally {
     renderMessages();
