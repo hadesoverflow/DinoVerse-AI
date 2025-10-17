@@ -6,7 +6,6 @@ const newChatBtn = document.getElementById("new-chat-btn");
 const historyList = document.getElementById("conversation-history");
 const toggleThemeBtn = document.getElementById("toggle-theme-btn");
 
-const GEMINI_API_KEY = "AIzaSyCvSYhgN86MN4izGNBRcAlt5vDe83ZU6cw";
 const GEMINI_MODEL = "gemini-1.5-flash-latest";
 
 const conversations = [];
@@ -125,31 +124,18 @@ async function requestAssistantResponse(prompt) {
 }
 
 async function callGeminiAPI(messages) {
-  const contents = messages
-    .filter((msg) => msg.role === "user" || msg.role === "assistant")
-    .map((msg) => ({
-      role: msg.role === "user" ? "user" : "model",
-      parts: [{ text: msg.content }]
-    }));
+  const payload = {
+    model: GEMINI_MODEL,
+    messages: messages.filter((msg) => msg.role === "user" || msg.role === "assistant")
+  };
 
-  const response = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        contents,
-        safetySettings: [
-          { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_NONE" },
-          { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_NONE" },
-          { category: "HARM_CATEGORY_SEXUAL", threshold: "BLOCK_NONE" },
-          { category: "HARM_CATEGORY_DANGEROUS", threshold: "BLOCK_NONE" }
-        ]
-      })
-    }
-  );
+  const response = await fetch("/api/gemini", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(payload)
+  });
 
   if (!response.ok) {
     const errorText = await response.text();
@@ -157,9 +143,7 @@ async function callGeminiAPI(messages) {
   }
 
   const data = await response.json();
-  const candidate = data?.candidates?.[0];
-  const parts = candidate?.content?.parts || [];
-  const text = parts.map((part) => part.text ?? "").join("\n").trim();
+  const text = (data?.text || "").trim();
   if (!text) {
     throw new Error("DinoVerse AI returned empty response.");
   }
