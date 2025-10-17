@@ -1,4 +1,4 @@
-const DEFAULT_MODEL = "gemini-1.5-flash";
+const DEFAULT_MODEL = "gemini-1.5-pro";
 const VALID_MODELS = new Set([
   "gemini-1.5-flash",
   "gemini-1.5-flash-8b",
@@ -6,8 +6,8 @@ const VALID_MODELS = new Set([
   "gemini-2.0-flash-exp"
 ]);
 const MODEL_ALIASES = {
-  "gemini-pro": "gemini-1.5-flash",
-  "gemini-1.0-pro": "gemini-1.5-flash",
+  "gemini-pro": "gemini-1.5-pro",
+  "gemini-1.0-pro": "gemini-1.5-pro",
   "gemini-1.5-flash": "gemini-1.5-flash",
   "gemini-1.5-flash-latest": "gemini-1.5-flash",
   "gemini-1.5-pro": "gemini-1.5-pro",
@@ -112,7 +112,7 @@ module.exports = async function handler(req, res) {
   }));
 
   try {
-    const endpoint = `https://generativelanguage.googleapis.com/v1/models/${model}:generateContent?key=${apiKey}`;
+    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
 
     if (modelResolution === "fallback") {
       console.warn(
