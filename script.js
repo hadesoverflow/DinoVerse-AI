@@ -7,6 +7,10 @@ const historyList = document.getElementById("conversation-history");
 const toggleThemeBtn = document.getElementById("toggle-theme-btn");
 
 const GEMINI_MODEL = "gemini-1.5-flash-latest";
+const API_BASE =
+  window.location.protocol === "file:" || window.location.hostname === "localhost"
+    ? "https://dino-verse-ai.vercel.app"
+    : "";
 
 const conversations = [];
 let activeConversation = createConversation();
@@ -129,7 +133,7 @@ async function callGeminiAPI(messages) {
     messages: messages.filter((msg) => msg.role === "user" || msg.role === "assistant")
   };
 
-  const response = await fetch("/api/gemini", {
+  const response = await fetch(`${API_BASE}/api/gemini`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
