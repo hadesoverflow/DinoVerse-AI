@@ -5,12 +5,25 @@ const promptSuggestions = document.getElementById("prompt-suggestions");
 const newChatBtn = document.getElementById("new-chat-btn");
 const historyList = document.getElementById("conversation-history");
 const toggleThemeBtn = document.getElementById("toggle-theme-btn");
+const modelPill = document.querySelector(".model-pill");
 
-const GEMINI_MODEL = "gemini-1.5-flash";
+const DEFAULT_GEMINI_MODEL = "gemini-1.5-flash";
+const searchParams = new URLSearchParams(window.location.search);
+const requestedModelParamRaw = searchParams.get("model");
+const requestedModelParam =
+  requestedModelParamRaw && requestedModelParamRaw.trim() ? requestedModelParamRaw.trim() : "";
+const GEMINI_MODEL = requestedModelParam || DEFAULT_GEMINI_MODEL;
+let currentModel = GEMINI_MODEL;
+
 const API_BASE =
   window.location.protocol === "file:" || window.location.hostname === "localhost"
     ? "https://dino-verse-ai.vercel.app"
     : "";
+
+updateModelPill(currentModel, {
+  requested: requestedModelParam || null,
+  resolution: requestedModelParam ? "requested" : "default"
+});
 
 const conversations = [];
 let activeConversation = createConversation();
@@ -111,14 +124,37 @@ function autoResizeTextarea() {
   promptInput.style.height = `${promptInput.scrollHeight}px`;
 }
 
+function updateModelPill(model, meta = {}) {
+  if (!modelPill) return;
+
+  const requested = typeof meta.requested === "string" ? meta.requested.trim() : "";
+  const resolution = meta.resolution || "exact";
+  const normalizedRequested = requested && requested !== model ? requested : "";
+
+  if (resolution === "fallback" && normalizedRequested) {
+    modelPill.textContent = `Mô hình: ${model} (không hỗ trợ "${normalizedRequested}")`;
+    return;
+  }
+
+  if (
+    normalizedRequested &&
+    ["alias", "trimmed-latest", "trimmed-latest-alias", "requested"].includes(resolution)
+  ) {
+    modelPill.textContent = `Mô hình: ${model} (chuẩn hóa từ "${normalizedRequested}")`;
+    return;
+  }
+
+  modelPill.textContent = `Mô hình: ${model}`;
+}
+
 async function requestAssistantResponse(prompt) {
   const pendingMessage = { role: "assistant", content: "Đang xử lý..." };
   activeConversation.messages.push(pendingMessage);
   renderMessages();
 
   try {
-    const reply = await callGeminiAPI(activeConversation.messages.slice(0, -1));
-    pendingMessage.content = reply;
+    const { text } = await callGeminiAPI(activeConversation.messages.slice(0, -1));
+    pendingMessage.content = text;
   } catch (error) {
     pendingMessage.content = `Xin lỗi, có lỗi xảy ra khi kết nối tới DinoVerse AI. Vui lòng thử lại.\n\nChi tiết: ${error.message}`;
     console.error("DinoVerse AI error:", error);
@@ -129,7 +165,7 @@ async function requestAssistantResponse(prompt) {
 
 async function callGeminiAPI(messages) {
   const payload = {
-    model: GEMINI_MODEL,
+    model: currentModel,
     messages: messages.filter((msg) => msg.role === "user" || msg.role === "assistant")
   };
 
@@ -151,7 +187,34 @@ async function callGeminiAPI(messages) {
   if (!text) {
     throw new Error("DinoVerse AI returned empty response.");
   }
-  return text;
+  const resolvedModel =
+    typeof data?.model === "string" && data.model.trim() ? data.model.trim() : currentModel;
+  const requestedModel =
+    typeof data?.requestedModel === "string" && data.requestedModel.trim()
+      ? data.requestedModel.trim()
+      : currentModel;
+  const normalizedFrom =
+    typeof data?.normalizedFrom === "string" && data.normalizedFrom.trim()
+      ? data.normalizedFrom.trim()
+      : "";
+  const resolution =
+    typeof data?.modelResolution === "string" && data.modelResolution.trim()
+      ? data.modelResolution.trim()
+      : resolvedModel === requestedModel
+        ? "exact"
+        : "alias";
+
+  currentModel = resolvedModel;
+  const requestedForDisplay = normalizedFrom || requestedModel || resolvedModel;
+  updateModelPill(resolvedModel, { requested: requestedForDisplay, resolution });
+
+  return {
+    text,
+    model: resolvedModel,
+    requestedModel,
+    normalizedFrom,
+    resolution
+  };
 }
 
 composer.addEventListener("submit", (event) => {
