@@ -1,20 +1,20 @@
-const DEFAULT_MODEL = "gemini-1.5-flash";
+const DEFAULT_MODEL = "text-bison-001";
 const VALID_MODELS = new Set([
-  "gemini-1.5-flash",
-  "gemini-1.5-pro"
+  "text-bison-001",
+  "chat-bison-001"
 ]);
 const MODEL_ALIASES = {
-  "gemini-pro": "gemini-1.5-flash",
-  "gemini-1.0-pro": "gemini-1.5-flash",
-  "gemini-1.5-flash": "gemini-1.5-flash",
-  "gemini-1.5-flash-latest": "gemini-1.5-flash",
-  "gemini-1.5-pro": "gemini-1.5-pro",
-  "gemini-1.5-pro-latest": "gemini-1.5-pro",
-  "gemini-1.5-flash-8b": "gemini-1.5-flash",
-  "gemini-1.5-flash-8b-latest": "gemini-1.5-flash",
-  "gemini-2.0-flash": "gemini-1.5-flash",
-  "gemini-2.0-flash-latest": "gemini-1.5-flash",
-  "gemini-2.0-flash-exp": "gemini-1.5-flash"
+  "gemini-pro": "text-bison-001",
+  "gemini-1.0-pro": "text-bison-001", 
+  "gemini-1.5-flash": "text-bison-001",
+  "gemini-1.5-flash-latest": "text-bison-001",
+  "gemini-1.5-pro": "text-bison-001",
+  "gemini-1.5-pro-latest": "text-bison-001",
+  "gemini-1.5-flash-8b": "text-bison-001",
+  "gemini-1.5-flash-8b-latest": "text-bison-001",
+  "gemini-2.0-flash": "text-bison-001",
+  "gemini-2.0-flash-latest": "text-bison-001",
+  "gemini-2.0-flash-exp": "text-bison-001"
 };
 
 function normalizeModel(name) {
@@ -109,8 +109,11 @@ module.exports = async function handler(req, res) {
     parts: [{ text: msg.content }]
   }));
 
+  // Convert to PaLM format
+  const prompt = messages.map(msg => `${msg.role}: ${msg.content}`).join('\n') + '\nassistant:';
+
   try {
-    const endpoint = `https://generativelanguage.googleapis.com/v1/models/${model}:generateContent?key=${apiKey}`;
+    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateText?key=${apiKey}`;
 
     if (modelResolution === "fallback") {
       console.warn(
@@ -126,14 +129,12 @@ module.exports = async function handler(req, res) {
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          contents,
-          safetySettings: [
-            { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_NONE" },
-            { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_NONE" },
-            { category: "HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold: "BLOCK_NONE" },
-            { category: "HARM_CATEGORY_DANGEROUS_CONTENT", threshold: "BLOCK_NONE" },
-            { category: "HARM_CATEGORY_CIVIC_INTEGRITY", threshold: "BLOCK_NONE" }
-          ]
+          prompt: {
+            text: prompt
+          },
+          temperature: 0.7,
+          candidateCount: 1,
+          maxOutputTokens: 1024
         })
       }
     );
@@ -145,11 +146,10 @@ module.exports = async function handler(req, res) {
 
     const data = await response.json();
     const candidate = data?.candidates?.[0];
-    const parts = candidate?.content?.parts || [];
-    const text = parts.map((part) => part.text ?? "").join("\n").trim();
+    const text = candidate?.output || candidate?.text || "";
 
     return res.status(200).json({
-      text,
+      text: text.trim(),
       model,
       requestedModel: body?.model ?? null,
       normalizedFrom: originalModel,
