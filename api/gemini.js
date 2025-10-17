@@ -23,13 +23,7 @@ const MODEL_ALIASES = {
   "gemini-2.0-pro": "gemini-2.0-pro-exp",
   "gemini-2.0-pro-latest": "gemini-2.0-pro-exp",
   "gemini-2.0-pro-exp": "gemini-2.0-pro-exp",
-  "gemini-2.0": "gemini-2.0-pro-exp",
-  "gemini-2.5": DEFAULT_MODEL,
-  "gemini-2.5-latest": DEFAULT_MODEL,
-  "gemini-2.5-flash": DEFAULT_MODEL,
-  "gemini-2.5-flash-latest": DEFAULT_MODEL,
-  "gemini-2.5-pro": DEFAULT_MODEL,
-  "gemini-2.5-pro-latest": DEFAULT_MODEL
+  "gemini-2.0": "gemini-2.0-pro-exp"
 };
 
 function normalizeModel(name) {
