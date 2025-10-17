@@ -1,4 +1,4 @@
-const DEFAULT_MODEL = "gemini-1.5-flash-latest";
+const DEFAULT_MODEL = "gemini-1.5-flash";
 
 async function parseBody(req) {
   if (req.body && typeof req.body === "object") {
