@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DinoVerse Chat</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <header class="sidebar__header">
+        <h1>DinoVerse AI</h1>
+        <button id="new-chat-btn" class="pill-btn">+ Cuộc trò chuyện mới</button>
+      </header>
+      <nav class="history" id="conversation-history"></nav>
+      <footer class="sidebar__footer">
+        <button class="pill-btn pill-btn--ghost" id="toggle-theme-btn">🌘 Tăng tương phản</button>
+      </footer>
+    </aside>
+    <main class="chat-panel">
+      <header class="chat-panel__header">
+        <div class="model-pill">Dinosaur AI Version 1</div>
+      </header>
+      <section class="chat-log" id="chat-log">
+        <div class="message message--assistant">
+          <div class="avatar">🤖</div>
+          <div class="bubble">
+            <p>Xin chào! Tôi là DinoVerse AI. Bạn muốn khám phá điều gì hôm nay?</p>
+          </div>
+        </div>
+      </section>
+      <section class="prompt-suggestions" id="prompt-suggestions">
+        <button class="suggestion">Gợi ý Ý tưởng kinh doanh</button>
+        <button class="suggestion">Giải thích khái niệm khoa học</button>
+        <button class="suggestion">Tạo kế hoạch học tập</button>
+      </section>
+      <form class="composer" id="composer" autocomplete="off">
+        <textarea
+          id="prompt-input"
+          rows="1"
+          placeholder="Nhập câu hỏi của bạn..."
+          required
+        ></textarea>
+        <button type="submit" class="send-btn" aria-label="Gửi">➤</button>
+      </form>
+    </main>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>
