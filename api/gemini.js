@@ -123,6 +123,13 @@ module.exports = async function handler(req, res) {
 
   try {
     const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+
+    if (modelResolution === "fallback") {
+      console.warn(
+        `Gemini model fallback applied. Requested="${originalModel}" -> Using="${model}".`
+      );
+    }
+
     const response = await fetch(
       endpoint,
       {
