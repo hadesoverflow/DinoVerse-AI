@@ -20,6 +20,25 @@ const MODEL_ALIASES = {
   "gemini-2.0-flash-exp": "llama-3.1-8b-instant"
 };
 
+function cleanMarkdown(text) {
+  return text
+    // Remove bold formatting **text**
+    .replace(/\*\*(.*?)\*\*/g, '$1')
+    // Remove italic formatting *text*
+    .replace(/\*(.*?)\*/g, '$1')
+    // Remove headers # ## ###
+    .replace(/^#{1,6}\s+/gm, '')
+    // Remove code blocks ```
+    .replace(/```[\s\S]*?```/g, '')
+    // Remove inline code `text`
+    .replace(/`([^`]+)`/g, '$1')
+    // Remove links [text](url)
+    .replace(/\[([^\]]+)\]\([^\)]+\)/g, '$1')
+    // Clean up extra whitespace
+    .replace(/\n\s*\n/g, '\n')
+    .trim();
+}
+
 function normalizeModel(name) {
   if (typeof name !== "string") {
     return { model: DEFAULT_MODEL, resolution: "default", original: null };
@@ -147,7 +166,10 @@ module.exports = async function handler(req, res) {
     }
 
     const data = await response.json();
-    const text = data?.choices?.[0]?.message?.content || "";
+    let text = data?.choices?.[0]?.message?.content || "";
+    
+    // Clean markdown formatting
+    text = cleanMarkdown(text);
 
     return res.status(200).json({
       text: text.trim(),
