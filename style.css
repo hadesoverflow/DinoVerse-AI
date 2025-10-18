@@ -436,3 +436,44 @@ body::after {
     transform: translateX(100%);
   }
 }
+
+/* Footer */
+.footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  text-align: center;
+  padding: 8px 0;
+  background: rgba(1, 18, 11, 0.8);
+  backdrop-filter: blur(10px);
+  border-top: 1px solid rgba(100, 255, 150, 0.2);
+  z-index: 100;
+}
+
+.footer__text {
+  margin: 0;
+  font-size: 12px;
+  color: rgba(158, 252, 140, 0.7);
+  font-weight: 300;
+  letter-spacing: 0.5px;
+}
+
+/* Adjust chat panel to avoid footer overlap */
+.chat-panel {
+  padding-bottom: 40px;
+}
+
+@media (max-width: 768px) {
+  .footer {
+    padding: 6px 0;
+  }
+  
+  .footer__text {
+    font-size: 11px;
+  }
+  
+  .chat-panel {
+    padding-bottom: 35px;
+  }
+}
