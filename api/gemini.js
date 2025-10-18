@@ -5,17 +5,17 @@ const VALID_MODELS = new Set([
   "command-nightly"
 ]);
 const MODEL_ALIASES = {
-  "gemini-pro": "gemini-1.5-flash-latest",
-  "gemini-1.0-pro": "gemini-1.5-flash-latest",
-  "gemini-1.5-flash": "gemini-1.5-flash-latest",
-  "gemini-1.5-flash-latest": "gemini-1.5-flash-latest",
-  "gemini-1.5-pro": "gemini-1.5-pro-latest",
-  "gemini-1.5-pro-latest": "gemini-1.5-pro-latest",
-  "gemini-1.5-flash-8b": "gemini-1.5-flash-latest",
-  "gemini-1.5-flash-8b-latest": "gemini-1.5-flash-latest",
-  "gemini-2.0-flash": "gemini-1.5-flash-latest",
-  "gemini-2.0-flash-latest": "gemini-1.5-flash-latest",
-  "gemini-2.0-flash-exp": "gemini-1.5-flash-latest"
+  "gemini-pro": "command-light",
+  "gemini-1.0-pro": "command-light",
+  "gemini-1.5-flash": "command-light",
+  "gemini-1.5-flash-latest": "command-light",
+  "gemini-1.5-pro": "command-light",
+  "gemini-1.5-pro-latest": "command-light",
+  "gemini-1.5-flash-8b": "command-light",
+  "gemini-1.5-flash-8b-latest": "command-light",
+  "gemini-2.0-flash": "command-light",
+  "gemini-2.0-flash-latest": "command-light",
+  "gemini-2.0-flash-exp": "command-light"
 };
 
 function normalizeModel(name) {
@@ -111,7 +111,7 @@ module.exports = async function handler(req, res) {
   }));
 
   try {
-    const endpoint = `https://api.cohere.ai/v1/generate`;
+    const endpoint = `https://api.cohere.ai/v1/chat`;
 
     if (modelResolution === "fallback") {
       console.warn(
@@ -129,10 +129,13 @@ module.exports = async function handler(req, res) {
         },
         body: JSON.stringify({
           model: model,
-          prompt: messages[messages.length - 1]?.content || "",
+          message: messages[messages.length - 1]?.content || "",
           max_tokens: 1000,
           temperature: 0.7,
-          return_likelihoods: "NONE"
+          chat_history: messages.slice(0, -1).map(msg => ({
+            role: msg.role === "user" ? "USER" : "CHATBOT",
+            message: msg.content
+          }))
         })
       }
     );
@@ -143,7 +146,7 @@ module.exports = async function handler(req, res) {
     }
 
     const data = await response.json();
-    const text = data?.generations?.[0]?.text || data?.text || "";
+    const text = data?.text || data?.message || "";
 
     return res.status(200).json({
       text: text.trim(),
