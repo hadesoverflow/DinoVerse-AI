@@ -7,7 +7,7 @@ const historyList = document.getElementById("conversation-history");
 const toggleThemeBtn = document.getElementById("toggle-theme-btn");
 const modelPill = document.querySelector(".model-pill");
 
-const DEFAULT_GEMINI_MODEL = "microsoft/DialoGPT-large";
+const DEFAULT_GEMINI_MODEL = "command-light";
 const searchParams = new URLSearchParams(window.location.search);
 const requestedModelParamRaw = searchParams.get("model");
 const requestedModelParam =
