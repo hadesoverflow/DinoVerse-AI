@@ -1,0 +1,26 @@
+{
+  "name": "DinoVerse AI",
+  "short_name": "DinoVerse",
+  "description": "Trò chuyện với trí tuệ nhân tạo mạnh mẽ",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#020604",
+  "theme_color": "#28ff78",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "images/logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "images/logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["productivity", "education", "utilities"],
+  "lang": "vi"
+}
