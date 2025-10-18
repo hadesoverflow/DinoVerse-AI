@@ -1,22 +1,23 @@
-const DEFAULT_MODEL = "llama3-8b-8192";
+const DEFAULT_MODEL = "llama-3.1-8b-instant";
 const VALID_MODELS = new Set([
-  "llama3-8b-8192",
-  "llama3-70b-8192",
-  "mixtral-8x7b-32768",
-  "gemma-7b-it"
+  "llama-3.1-8b-instant",
+  "llama-3.1-70b-versatile", 
+  "llama-3.2-11b-text-preview",
+  "llama-3.2-3b-preview",
+  "mixtral-8x7b-32768"
 ]);
 const MODEL_ALIASES = {
-  "gemini-pro": "llama3-8b-8192",
-  "gemini-1.0-pro": "llama3-8b-8192",
-  "gemini-1.5-flash": "llama3-8b-8192",
-  "gemini-1.5-flash-latest": "llama3-8b-8192",
-  "gemini-1.5-pro": "llama3-70b-8192",
-  "gemini-1.5-pro-latest": "llama3-70b-8192",
-  "gemini-1.5-flash-8b": "llama3-8b-8192",
-  "gemini-1.5-flash-8b-latest": "llama3-8b-8192",
-  "gemini-2.0-flash": "llama3-8b-8192",
-  "gemini-2.0-flash-latest": "llama3-8b-8192",
-  "gemini-2.0-flash-exp": "llama3-8b-8192"
+  "gemini-pro": "llama-3.1-8b-instant",
+  "gemini-1.0-pro": "llama-3.1-8b-instant",
+  "gemini-1.5-flash": "llama-3.1-8b-instant",
+  "gemini-1.5-flash-latest": "llama-3.1-8b-instant",
+  "gemini-1.5-pro": "llama-3.1-70b-versatile",
+  "gemini-1.5-pro-latest": "llama-3.1-70b-versatile",
+  "gemini-1.5-flash-8b": "llama-3.1-8b-instant",
+  "gemini-1.5-flash-8b-latest": "llama-3.1-8b-instant",
+  "gemini-2.0-flash": "llama-3.1-8b-instant",
+  "gemini-2.0-flash-latest": "llama-3.1-8b-instant",
+  "gemini-2.0-flash-exp": "llama-3.1-8b-instant"
 };
 
 function normalizeModel(name) {

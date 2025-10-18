@@ -7,7 +7,7 @@ const historyList = document.getElementById("conversation-history");
 const toggleThemeBtn = document.getElementById("toggle-theme-btn");
 const modelPill = document.querySelector(".model-pill");
 
-const DEFAULT_GEMINI_MODEL = "llama3-8b-8192";
+const DEFAULT_GEMINI_MODEL = "llama-3.1-8b-instant";
 const searchParams = new URLSearchParams(window.location.search);
 const requestedModelParamRaw = searchParams.get("model");
 const requestedModelParam =
