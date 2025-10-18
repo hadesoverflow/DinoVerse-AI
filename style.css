@@ -367,3 +367,72 @@ body::after {
     padding: 18px 20px 24px;
   }
 }
+
+/* Copy Button Styles */
+.copy-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: rgba(40, 255, 120, 0.1);
+  border: 1px solid rgba(40, 255, 120, 0.3);
+  border-radius: 4px;
+  color: var(--text-primary);
+  font-size: 12px;
+  padding: 4px 6px;
+  cursor: pointer;
+  opacity: 0;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(10px);
+}
+
+.bubble {
+  position: relative;
+}
+
+.bubble:hover .copy-btn {
+  opacity: 1;
+}
+
+.copy-btn:hover {
+  background: rgba(40, 255, 120, 0.2);
+  border-color: rgba(40, 255, 120, 0.5);
+  transform: scale(1.05);
+}
+
+.copy-btn:active {
+  transform: scale(0.95);
+}
+
+/* Copy Feedback */
+.copy-feedback {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: rgba(40, 255, 120, 0.9);
+  color: #020604;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  z-index: 1000;
+  animation: slideInFade 0.3s ease, slideOutFade 0.3s ease 1.7s;
+  box-shadow: 0 4px 12px rgba(40, 255, 120, 0.3);
+}
+
+@keyframes slideInFade {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideOutFade {
+  to {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+}

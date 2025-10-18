@@ -68,12 +68,50 @@ function renderMessages() {
     bubble.classList.add("bubble");
     bubble.innerHTML = sanitize(message.content);
 
+    // Add copy button for assistant messages
+    if (message.role === "assistant") {
+      const copyBtn = document.createElement("button");
+      copyBtn.classList.add("copy-btn");
+      copyBtn.innerHTML = "📋";
+      copyBtn.title = "Copy văn bản";
+      copyBtn.onclick = () => copyToClipboard(message.content);
+      bubble.appendChild(copyBtn);
+    }
+
     messageEl.appendChild(avatar);
     messageEl.appendChild(bubble);
     chatLog.appendChild(messageEl);
   });
 
   chatLog.scrollTop = chatLog.scrollHeight;
+}
+
+function copyToClipboard(text) {
+  navigator.clipboard.writeText(text).then(() => {
+    // Show success feedback
+    showCopyFeedback();
+  }).catch(err => {
+    console.error('Failed to copy text: ', err);
+    // Fallback for older browsers
+    const textArea = document.createElement("textarea");
+    textArea.value = text;
+    document.body.appendChild(textArea);
+    textArea.select();
+    document.execCommand('copy');
+    document.body.removeChild(textArea);
+    showCopyFeedback();
+  });
+}
+
+function showCopyFeedback() {
+  const feedback = document.createElement("div");
+  feedback.classList.add("copy-feedback");
+  feedback.textContent = "Đã copy!";
+  document.body.appendChild(feedback);
+  
+  setTimeout(() => {
+    feedback.remove();
+  }, 2000);
 }
 
 function renderHistory() {
