@@ -1,21 +1,22 @@
-const DEFAULT_MODEL = "command-r-plus";
+const DEFAULT_MODEL = "llama3-8b-8192";
 const VALID_MODELS = new Set([
-  "command-r-plus",
-  "command-r",
-  "command"
+  "llama3-8b-8192",
+  "llama3-70b-8192",
+  "mixtral-8x7b-32768",
+  "gemma-7b-it"
 ]);
 const MODEL_ALIASES = {
-  "gemini-pro": "command-r-plus",
-  "gemini-1.0-pro": "command-r-plus",
-  "gemini-1.5-flash": "command-r-plus",
-  "gemini-1.5-flash-latest": "command-r-plus",
-  "gemini-1.5-pro": "command-r-plus",
-  "gemini-1.5-pro-latest": "command-r-plus",
-  "gemini-1.5-flash-8b": "command-r-plus",
-  "gemini-1.5-flash-8b-latest": "command-r-plus",
-  "gemini-2.0-flash": "command-r-plus",
-  "gemini-2.0-flash-latest": "command-r-plus",
-  "gemini-2.0-flash-exp": "command-r-plus"
+  "gemini-pro": "llama3-8b-8192",
+  "gemini-1.0-pro": "llama3-8b-8192",
+  "gemini-1.5-flash": "llama3-8b-8192",
+  "gemini-1.5-flash-latest": "llama3-8b-8192",
+  "gemini-1.5-pro": "llama3-70b-8192",
+  "gemini-1.5-pro-latest": "llama3-70b-8192",
+  "gemini-1.5-flash-8b": "llama3-8b-8192",
+  "gemini-1.5-flash-8b-latest": "llama3-8b-8192",
+  "gemini-2.0-flash": "llama3-8b-8192",
+  "gemini-2.0-flash-latest": "llama3-8b-8192",
+  "gemini-2.0-flash-exp": "llama3-8b-8192"
 };
 
 function normalizeModel(name) {
@@ -84,9 +85,9 @@ module.exports = async function handler(req, res) {
     return res.status(405).json({ error: "Method Not Allowed" });
   }
 
-  const apiKey = process.env.COHERE_API_KEY;
+  const apiKey = process.env.GROQ_API_KEY;
   if (!apiKey) {
-    return res.status(500).json({ error: "Missing COHERE_API_KEY environment variable" });
+    return res.status(500).json({ error: "Missing GROQ_API_KEY environment variable" });
   }
 
   let body;
@@ -111,7 +112,7 @@ module.exports = async function handler(req, res) {
   }));
 
   try {
-    const endpoint = `https://api.cohere.ai/v1/chat`;
+    const endpoint = `https://api.groq.com/openai/v1/chat/completions`;
 
     if (modelResolution === "fallback") {
       console.warn(
@@ -129,13 +130,12 @@ module.exports = async function handler(req, res) {
         },
         body: JSON.stringify({
           model: model,
-          message: messages[messages.length - 1]?.content || "",
+          messages: messages.map(msg => ({
+            role: msg.role,
+            content: msg.content
+          })),
           max_tokens: 1000,
-          temperature: 0.7,
-          chat_history: messages.slice(0, -1).map(msg => ({
-            role: msg.role === "user" ? "USER" : "CHATBOT",
-            message: msg.content
-          }))
+          temperature: 0.7
         })
       }
     );
@@ -146,7 +146,7 @@ module.exports = async function handler(req, res) {
     }
 
     const data = await response.json();
-    const text = data?.text || data?.message || "";
+    const text = data?.choices?.[0]?.message?.content || "";
 
     return res.status(200).json({
       text: text.trim(),
