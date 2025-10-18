@@ -1,21 +1,21 @@
-const DEFAULT_MODEL = "command-light";
+const DEFAULT_MODEL = "command-r-plus";
 const VALID_MODELS = new Set([
-  "command-light",
-  "command",
-  "command-nightly"
+  "command-r-plus",
+  "command-r",
+  "command"
 ]);
 const MODEL_ALIASES = {
-  "gemini-pro": "command-light",
-  "gemini-1.0-pro": "command-light",
-  "gemini-1.5-flash": "command-light",
-  "gemini-1.5-flash-latest": "command-light",
-  "gemini-1.5-pro": "command-light",
-  "gemini-1.5-pro-latest": "command-light",
-  "gemini-1.5-flash-8b": "command-light",
-  "gemini-1.5-flash-8b-latest": "command-light",
-  "gemini-2.0-flash": "command-light",
-  "gemini-2.0-flash-latest": "command-light",
-  "gemini-2.0-flash-exp": "command-light"
+  "gemini-pro": "command-r-plus",
+  "gemini-1.0-pro": "command-r-plus",
+  "gemini-1.5-flash": "command-r-plus",
+  "gemini-1.5-flash-latest": "command-r-plus",
+  "gemini-1.5-pro": "command-r-plus",
+  "gemini-1.5-pro-latest": "command-r-plus",
+  "gemini-1.5-flash-8b": "command-r-plus",
+  "gemini-1.5-flash-8b-latest": "command-r-plus",
+  "gemini-2.0-flash": "command-r-plus",
+  "gemini-2.0-flash-latest": "command-r-plus",
+  "gemini-2.0-flash-exp": "command-r-plus"
 };
 
 function normalizeModel(name) {
