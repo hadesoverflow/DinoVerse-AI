@@ -81,7 +81,7 @@ body::after {
 .sidebar {
   display: flex;
   flex-direction: column;
-  padding: 24px 20px;
+  padding: 24px 20px 50px 20px;
   background: var(--sidebar);
   color: var(--sidebar-text);
   border-right: 1px solid var(--border);
@@ -339,6 +339,12 @@ body::after {
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@media (max-width: 1200px) and (min-width: 769px) {
+  .sidebar {
+    padding: 20px 16px 50px 16px;
   }
 }
 
