@@ -179,7 +179,7 @@ module.exports = async function handler(req, res) {
       modelResolution
     });
   } catch (error) {
-    console.error("Gemini proxy error:", error);
-    return res.status(500).json({ error: "Gemini proxy error" });
+    console.error("Groq proxy error:", error);
+    return res.status(500).json({ error: "Groq proxy error" });
   }
 };

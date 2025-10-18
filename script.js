@@ -207,7 +207,7 @@ async function callGeminiAPI(messages) {
     messages: messages.filter((msg) => msg.role === "user" || msg.role === "assistant")
   };
 
-  const response = await fetch(`${API_BASE}/api/gemini`, {
+  const response = await fetch(`${API_BASE}/api/groq`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
